@@ -2,18 +2,67 @@ var ArduinoFirmata = require('arduino-firmata');
 
 var arduino = new ArduinoFirmata();
 
-var LEDS = 10;
+var LEDS = 15;
+var FPS = 25;
+
 var leds = [];
-          // [ 127,   0,   0,
-          //     0, 127,   0,
-          //     0,   0, 127 ];
+var loopInterval;
 
 init();
 
+// Initialization
+
 function init()
 {
-    console.log("init!");
-    
+    console.log("initializing...");
+
+    initCallbacks();
+    initArrays();
+    initRotate();
+
+    console.log("connecting...");
+    arduino.connect();
+}
+
+function loop()
+{
+    rotateLeds();
+    sendColors();
+}
+
+function initCallbacks()
+{
+
+    // handle ctrl+c gracefully
+    process.on('SIGINT', function()
+    {
+        console.log("caught interrupt signal.");
+        arduino.close(function() {
+            console.log("connection closed.");
+            clearInterval(loopInterval);
+            process.exit();
+        });
+    });
+
+    // arduino connection
+    arduino.on('connect', function()
+    {
+        console.log("connected: " + arduino.boardVersion);
+        loopInterval = setInterval(loop, 1000 / FPS);
+    });
+
+    // sysex callback
+    arduino.on('sysex', function(e)
+    {
+        console.log("sysex received.");
+        console.log("command : " + e.command);
+        console.log("data    : " + JSON.stringify(e.data));
+    });
+
+}
+
+function initArrays()
+{
     for (var i = 0; i < LEDS; i++)
     {
         leds[i] = [];
@@ -22,48 +71,40 @@ function init()
             leds[i][c] = 0;
         }
     }
-
-    process.on('SIGINT', function()
-    {
-        console.log("caught interrupt signal.");
-        arduino.close(function() {
-            console.log("connection closed.");
-            process.exit();
-        });
-    });
-
-    console.log("connecting...");
-    arduino.connect('/dev/tty.usbserial-A100X098');
 }
 
-function loop()
-{
-    console.log("loop!");
-    randomizeLeds();
-    sendColors();
-    //setTimeout(loop, 1000);
-}
+// Test pattern
 
-function randomizeLeds()
+function initRotate()
 {
     for (var i = 0; i < LEDS; i++)
     {
-        leds[i][0] = Math.random() > 0.5 ? 64 : 0;
-        leds[i][1] = Math.random() > 0.5 ? 64 : 0;
-        leds[i][2] = Math.random() > 0.5 ? 64 : 0;
+        leds[i][0] = i % 128;
+        leds[i][1] = (i + 30) % 128;
+        leds[i][2] = (i + 60) % 128;
     }
 }
+
+function rotateLeds()
+{
+    for (var i = 0; i < LEDS; i++)
+    {
+        for (var c = 0; c < 3; c++)
+        {
+            leds[i][c] = leds[i][c] + 1 % 128;
+        }
+    }
+}
+
+// Send colors
 
 function sendColors()
 {
     var ledStrand = getStrand();
-    arduino.sysex(0x01, ledStrand, sysexCompleteCallback);
-}
-
-function sysexCompleteCallback()
-{
-    console.log("sysex sent.");
-    setTimeout(loop, 1000);
+    arduino.sysex(0x01, ledStrand, function()
+    {
+        // console.log("sent frame.");
+    });
 }
 
 function getStrand()
@@ -78,16 +119,3 @@ function getStrand()
     }
     return ledStrand;
 }
-
-arduino.on('connect', function()
-{
-    console.log("connected: " + arduino.boardVersion);
-    loop();
-});
-
-arduino.on('sysex', function(e)
-{
-    console.log("sysex received.");
-    console.log("command : " + e.command);
-    console.log("data    : " + JSON.stringify(e.data));
-});
