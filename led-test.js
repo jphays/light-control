@@ -1,4 +1,3 @@
-
 var ArduinoFirmata = require('arduino-firmata');
 
 var arduino = new ArduinoFirmata();
@@ -9,12 +8,11 @@ var leds = [];
           //     0, 127,   0,
           //     0,   0, 127 ];
 
-setup();
+init();
 
-function setup()
+function init()
 {
-    console.log('setup!');
-    arduino.connect('/dev/tty.usbserial-A100X098');
+    console.log("init!");
     
     for (var i = 0; i < LEDS; i++)
     {
@@ -23,25 +21,49 @@ function setup()
         {
             leds[i][c] = 0;
         }
-   }
+    }
+
+    process.on('SIGINT', function()
+    {
+        console.log("caught interrupt signal.");
+        arduino.close(function() {
+            console.log("connection closed.");
+            process.exit();
+        });
+    });
+
+    console.log("connecting...");
+    arduino.connect('/dev/tty.usbserial-A100X098');
 }
 
 function loop()
 {
-    console.log('loop!');
+    console.log("loop!");
     randomizeLeds();
     sendColors();
-    setTimeout(loop, 100);
+    //setTimeout(loop, 1000);
 }
 
 function randomizeLeds()
 {
     for (var i = 0; i < LEDS; i++)
     {
-        leds[i][0] = Math.random() > 0.5 ? 127 : 0;
-        leds[i][1] = Math.random() > 0.5 ? 127 : 0; 
-        leds[i][2] = Math.random() > 0.5 ? 127 : 0; 
+        leds[i][0] = Math.random() > 0.5 ? 64 : 0;
+        leds[i][1] = Math.random() > 0.5 ? 64 : 0;
+        leds[i][2] = Math.random() > 0.5 ? 64 : 0;
     }
+}
+
+function sendColors()
+{
+    var ledStrand = getStrand();
+    arduino.sysex(0x01, ledStrand, sysexCompleteCallback);
+}
+
+function sysexCompleteCallback()
+{
+    console.log("sysex sent.");
+    setTimeout(loop, 1000);
 }
 
 function getStrand()
@@ -57,21 +79,15 @@ function getStrand()
     return ledStrand;
 }
 
-function sendColors()
-{
-    var ledStrand = getStrand();
-    arduino.sysex(0x01, ledStrand);
-}
-
 arduino.on('connect', function()
 {
-    console.log("Connected: " + arduino.boardVersion);
-    setup();
+    console.log("connected: " + arduino.boardVersion);
     loop();
 });
 
 arduino.on('sysex', function(e)
 {
+    console.log("sysex received.");
     console.log("command : " + e.command);
     console.log("data    : " + JSON.stringify(e.data));
 });
