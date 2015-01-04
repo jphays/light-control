@@ -1,0 +1,8 @@
+{
+    "name": "light-control",
+    "version": "0.0.1"
+    "dependencies": {
+        "arduino-firmata": "*"
+    },
+    "author": "Josh Hays <jphays@gmail.com>
+}
