@@ -1,12 +1,18 @@
 var ArduinoFirmata = require('arduino-firmata');
+var Color = require('color');
+
+var scenes = require('./scenes');
+
+var options =
+{
+    ledCount: 50,
+    fps: 25
+};
 
 var arduino = new ArduinoFirmata();
-
-var LEDS = 15;
-var FPS = 25;
-
 var leds = [];
 var loopInterval;
+var scene;
 
 init();
 
@@ -18,7 +24,9 @@ function init()
 
     initCallbacks();
     initArrays();
-    initRotate();
+
+    scene = scenes.rainbow;
+    scene.init(options);
 
     console.log("connecting...");
     arduino.connect();
@@ -26,7 +34,7 @@ function init()
 
 function loop()
 {
-    rotateLeds();
+    leds = scene.render();
     sendColors();
 }
 
@@ -47,8 +55,8 @@ function initCallbacks()
     // arduino connection
     arduino.on('connect', function()
     {
-        console.log("connected: " + arduino.boardVersion);
-        loopInterval = setInterval(loop, 1000 / FPS);
+        console.log("connected: " + arduino.boardVersion + " (" + arduino.serialport_name + ")");
+        loopInterval = setInterval(loop, 1000 / options.fps);
     });
 
     // sysex callback
@@ -63,40 +71,26 @@ function initCallbacks()
 
 function initArrays()
 {
-    for (var i = 0; i < LEDS; i++)
+    for (var i = 0; i < options.ledCount; i++)
     {
-        leds[i] = [];
-        for (var c = 0; c < 3; c++)
-        {
-            leds[i][c] = 0;
-        }
-    }
-}
-
-// Test pattern
-
-function initRotate()
-{
-    for (var i = 0; i < LEDS; i++)
-    {
-        leds[i][0] = i % 128;
-        leds[i][1] = (i + 30) % 128;
-        leds[i][2] = (i + 60) % 128;
-    }
-}
-
-function rotateLeds()
-{
-    for (var i = 0; i < LEDS; i++)
-    {
-        for (var c = 0; c < 3; c++)
-        {
-            leds[i][c] = leds[i][c] + 1 % 128;
-        }
+        leds[i] = Color({ r: 0, g: 0, b: 0 });
     }
 }
 
 // Send colors
+
+function getStrand()
+{
+    var ledStrand = [];
+    for (var i = 0; i < leds.length; i++)
+    {
+        var colorRgb = leds[i].rgb();
+        ledStrand.push(colorRgb.r);
+        ledStrand.push(colorRgb.g);
+        ledStrand.push(colorRgb.b);
+    }
+    return ledStrand;
+}
 
 function sendColors()
 {
@@ -105,17 +99,4 @@ function sendColors()
     {
         // console.log("sent frame.");
     });
-}
-
-function getStrand()
-{
-    var ledStrand = [];
-    for (var i = 0; i < leds.length; i++)
-    {
-        for (var c = 0; c < 3; c++)
-        {
-            ledStrand.push(leds[i][c]);
-        }
-    }
-    return ledStrand;
 }

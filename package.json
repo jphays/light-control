@@ -12,7 +12,8 @@
         "firmata"
     ],
     "dependencies": {
-        "arduino-firmata": "*"
+        "arduino-firmata": "*",
+        "color": "*"
     },
     "private": true,
     "license": "MIT"
