@@ -1,6 +1,6 @@
 {
     "name": "light-control",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Control module for TCL on Arduino via Firmata.",
     "author": "Josh Hays <jphays@gmail.com>",
     "repository": {
@@ -13,7 +13,8 @@
     ],
     "dependencies": {
         "arduino-firmata": "*",
-        "color": "*"
+        "color": "*",
+        "lodash": "*"
     },
     "private": true,
     "license": "MIT"
