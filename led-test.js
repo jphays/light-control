@@ -3,15 +3,23 @@ var Color = require('color');
 
 var scenes = require('./scenes');
 
+var SYSEX_SET_COLORS = 0x01;
+
 var options =
 {
     ledCount: 50,
-    fps: 25
+    fps: 30
+};
+
+var state =
+{
+    time: 0,
+    frame: 0
 };
 
 var arduino = new ArduinoFirmata();
-var leds = [];
 var loopInterval;
+var leds = [];
 var scene;
 
 init();
@@ -34,8 +42,11 @@ function init()
 
 function loop()
 {
-    leds = scene.render();
-    sendColors();
+    state.time = Date.now();
+    state.frame++;
+
+    leds = scene.render(state);
+    sendColors(leds);
 }
 
 function initCallbacks()
@@ -79,10 +90,10 @@ function initArrays()
 
 // Send colors
 
-function getStrand()
+function getBytes(strand)
 {
     var ledStrand = [];
-    for (var i = 0; i < leds.length; i++)
+    for (var i = 0; i < strand.length; i++)
     {
         var colorRgb = leds[i].rgb();
         ledStrand.push(colorRgb.r);
@@ -92,10 +103,10 @@ function getStrand()
     return ledStrand;
 }
 
-function sendColors()
+function sendColors(strand)
 {
-    var ledStrand = getStrand();
-    arduino.sysex(0x01, ledStrand, function()
+    var bytes = getBytes(strand);
+    arduino.sysex(SYSEX_SET_COLORS, bytes, function()
     {
         // console.log("sent frame.");
     });
