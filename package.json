@@ -3,6 +3,9 @@
     "version": "0.0.2",
     "description": "Control module for TCL on Arduino via Firmata.",
     "author": "Josh Hays <jphays@gmail.com>",
+    "scripts": {
+	"start": "node light-control.js"
+    },
     "repository": {
         "type": "git",
         "url": "https://github.com/jphays/light-control"

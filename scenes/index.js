@@ -8,5 +8,5 @@ scenes.forEach(function(path) {
     exports[path] = scene;
 });
 
-// list of all scene names
-exports.scenes = scenes;
+// list of all scenes
+exports.all = scenes.map(function(name) { return exports[name]; });

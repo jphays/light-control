@@ -1,5 +1,6 @@
 var ArduinoFirmata = require('arduino-firmata');
 var Color = require('color');
+var _ = require('lodash');
 
 var scenes = require('./scenes');
 
@@ -33,7 +34,7 @@ function init()
     initCallbacks();
     initArrays();
 
-    scene = scenes.rainbow;
+    scene = _.sample(scenes.all);
     scene.init(options);
 
     console.log("connecting...");
