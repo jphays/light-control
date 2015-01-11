@@ -6,17 +6,14 @@ function init(options)
 {
     for (var i = 0; i < options.ledCount; i++)
     {
-        sceneLeds.push(Color({ h: (i * 5) % 360, s: 100, v: 45 }));
+        sceneLeds.push(Color({ h: (i * 5) % 360, s: 100, v: 85 }));
     }
 }
 
 function render(state)
 {
-
-    for (var i = 0; i < sceneLeds.length; i++)
-    {
-        sceneLeds[i] = sceneLeds[i].rotate(1);
-    }
+    var value = (Math.sin(state.time / 1000) + 1) * 30 + 30;
+    sceneLeds.forEach(function(led) { led.rotate(1); });
     return sceneLeds;
 }
 
