@@ -1,5 +1,6 @@
 var scenes = [
     'cycle',
+    'flash',
     'rainbow'
 ];
 
