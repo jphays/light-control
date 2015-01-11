@@ -35,7 +35,6 @@ function init()
     initArrays();
 
     scene = _.sample(scenes.all);
-    scene.init(options);
 
     console.log("connecting...");
     arduino.connect();
@@ -53,21 +52,11 @@ function loop()
 function initCallbacks()
 {
 
-    // handle ctrl+c gracefully
-    process.on('SIGINT', function()
-    {
-        console.log("caught interrupt signal.");
-        arduino.close(function() {
-            console.log("connection closed.");
-            clearInterval(loopInterval);
-            process.exit();
-        });
-    });
-
     // arduino connection
     arduino.on('connect', function()
     {
         console.log("connected: " + arduino.boardVersion + " (" + arduino.serialport_name + ")");
+        scene.init(options);
         loopInterval = setInterval(loop, 1000 / options.fps);
     });
 
@@ -77,6 +66,17 @@ function initCallbacks()
         console.log("sysex received.");
         console.log("command : " + e.command);
         console.log("data    : " + JSON.stringify(e.data));
+    });
+
+    // handle ctrl+c gracefully
+    process.on('SIGINT', function()
+    {
+        console.log("caught interrupt signal.");
+        arduino.close(function() {
+            console.log("connection closed.");
+            clearInterval(loopInterval);
+            process.exit();
+        });
     });
 
 }
@@ -97,9 +97,7 @@ function getBytes(strand)
     for (var i = 0; i < strand.length; i++)
     {
         var colorRgb = leds[i].rgb();
-        ledStrand.push(colorRgb.r);
-        ledStrand.push(colorRgb.g);
-        ledStrand.push(colorRgb.b);
+        ledStrand.push(colorRgb.r, colorRgb.g, colorRgb.b);
     }
     return ledStrand;
 }
