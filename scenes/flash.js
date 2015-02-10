@@ -2,7 +2,7 @@ var _ = require('lodash');
 var Color = require('color');
 var palettes = require('../palettes');
 
-var palette = palettes.rainbow;
+var palette = palettes.triadicScheme({ h: _.random(360), s: 100, v: 80 });
 
 var pixels = [];
 var changeInterval = 1200;
@@ -13,7 +13,7 @@ function init(options)
     {
         pixels[i] = {
             colorIndex: palette.length - 1,
-            color: palette[0].clone(),
+            color: Color("black"),
             changeTime: 5 * i,
             lastChangeTime: 0
         };
@@ -29,7 +29,6 @@ function render(state)
         pixels.forEach(function(pixel, i)
         {
             pixel.changeTime += state.time;
-            //pixel.lastChangeTime = state.time;
         });
     }
 
@@ -43,9 +42,7 @@ function render(state)
             pixel.lastChangeTime = state.time;
         }
 
-        var timeSinceChange = state.time - pixel.lastChangeTime;
-        pixel.color = envelope(
-            { timeSinceChange: timeSinceChange },
+        pixel.color = envelope(pixel.lastChangeTime, state,
             { color: palette[pixel.colorIndex].clone() });
     });
 
@@ -54,48 +51,48 @@ function render(state)
 }
 
 // An ADSR (attack/decay/sustain/release) envelope for a color.
-// State should contain the time since the envelope fired.
-
-function envelope(state, options)
+function envelope(startTime, state, options)
 {
 
     options = _.defaults(options, {
         startColor: "black",
-        attackTime: 100,
         attackColor: "white",
+        color: "white",
+        releaseColor: "black",
+        attackTime: 100,
         decayTime: 250,
         sustainTime: 400,
-        color: "red",
-        releaseTime: 350,
-        releaseColor: "black"
+        releaseTime: 300
     });
+
+    var timeSinceStart = state.time - startTime;
 
     var decayStart = options.attackTime;
     var sustainStart = decayStart + options.decayTime;
     var releaseStart = sustainStart + options.sustainTime;
     var releaseEnd = releaseStart + options.releaseTime;
 
-    if (state.timeSinceChange < decayStart)
+    if (timeSinceStart < decayStart)
     {
         return Color(options.startColor).mix(
                     Color(options.attackColor),
-                    state.timeSinceChange / options.attackTime);
+                    timeSinceStart / options.attackTime);
     }
-    else if (state.timeSinceChange < sustainStart)
+    else if (timeSinceStart < sustainStart)
     {
         return Color(options.attackColor).mix(
                     Color(options.color),
-                    (state.timeSinceChange - decayStart) / options.decayTime);
+                    (timeSinceStart - decayStart) / options.decayTime);
     }
-    else if (state.timeSinceChange < releaseStart)
+    else if (timeSinceStart < releaseStart)
     {
         return Color(options.color);
     }
-    else if (state.timeSinceChange < releaseEnd)
+    else if (timeSinceStart < releaseEnd)
     {
         return Color(options.color).mix(
                     Color(options.releaseColor),
-                    (state.timeSinceChange - releaseStart) / options.releaseTime);
+                    (timeSinceStart - releaseStart) / options.releaseTime);
     }
     else
     {
