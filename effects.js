@@ -23,29 +23,29 @@ exports.envelope = function(startTime, state, options)
     var releaseStart = sustainStart + options.sustainTime;
     var releaseEnd = releaseStart + options.releaseTime;
 
-    if (timeSinceStart < decayStart)
+    if (timeSinceStart < decayStart) // attack
     {
         return Color(options.startColor).mix(
                     Color(options.attackColor),
                     timeSinceStart / options.attackTime);
     }
-    else if (timeSinceStart < sustainStart)
+    else if (timeSinceStart < sustainStart) // decay
     {
         return Color(options.attackColor).mix(
                     Color(options.color),
                     (timeSinceStart - decayStart) / options.decayTime);
     }
-    else if (timeSinceStart < releaseStart)
+    else if (timeSinceStart < releaseStart) // sustain
     {
         return Color(options.color);
     }
-    else if (timeSinceStart < releaseEnd)
+    else if (timeSinceStart < releaseEnd) // release
     {
         return Color(options.color).mix(
                     Color(options.releaseColor),
                     (timeSinceStart - releaseStart) / options.releaseTime);
     }
-    else
+    else // end
     {
         return Color(options.releaseColor);
     }

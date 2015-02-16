@@ -23,6 +23,7 @@ var state =
     scene: _.sample(scenes.all),
     nextScene: null,
     lastTransitionTime: 0,
+    transition: null,
     loopInterval: null
 };
 
@@ -96,25 +97,29 @@ function generateFrame()
     if (state.time > state.lastTransitionTime + (options.sceneLength * 1000))
     {
         // transition begins
+
         state.lastTransitionTime = state.time;
+        state.transition = _.sample(transitions.all);
         state.nextScene = _.sample(_.filter(scenes.all, function(scene) { return scene.name != state.scene.name }));
         state.nextScene.init(options);
-        console.log("transition - scene: " + state.nextScene.name);
+        console.log("transition: " + state.scene.name + " -> " + state.nextScene.name);
     }
     else if (state.time < state.lastTransitionTime + (options.transitionTime * 1000) && state.nextScene)
     {
         // transition underway
-        return transitions.fade(state.scene.render(state),
+
+        return state.transition(state.scene.render(state),
                                 state.nextScene.render(state),
                                 state.lastTransitionTime, options.transitionTime * 1000,
-                                state, options);
+                                state, { color: "white" });
     }
     else if (state.nextScene)
     {
         // transition ends
+
         state.scene = state.nextScene;
         state.nextScene = null;
-        console.log("transition complete");
+        console.log("transition complete: " + state.scene.name);
     }
 
     return state.scene.render(state);
