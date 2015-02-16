@@ -3,25 +3,30 @@ var ArduinoFirmata = require('arduino-firmata');
 var Color = require('color');
 
 var scenes = require('./scenes');
+var transitions = require('./transitions');
 
 var SYSEX_SET_COLORS = 0x01;
 
 var options =
 {
     ledCount: 50,
-    fps: 30
+    fps: 30,
+    sceneLength: 12,  // seconds
+    transitionTime: 3 // seconds
 };
 
 var state =
 {
     time: 0,
-    frame: 0
+    frame: 0,
+    leds: [],
+    scene: _.sample(scenes.all),
+    nextScene: null,
+    lastTransitionTime: 0,
+    loopInterval: null
 };
 
 var arduino = new ArduinoFirmata();
-var loopInterval;
-var leds = [];
-var scene;
 
 init();
 
@@ -32,22 +37,9 @@ function init()
     console.log("leds: " + options.ledCount + " | " + options.fps + " fps");
 
     initCallbacks();
-    initArrays();
-
-    scene = _.sample(scenes.all);
-    scene = scenes.rainbow;
 
     console.log("connecting...");
     arduino.connect();
-}
-
-function loop()
-{
-    state.time = Date.now();
-    state.frame++;
-
-    leds = scene.render(state);
-    sendColors(leds);
 }
 
 function initCallbacks()
@@ -57,8 +49,14 @@ function initCallbacks()
     arduino.on('connect', function()
     {
         console.log("connected: " + arduino.boardVersion + " (" + arduino.serialport_name + ")");
-        scene.init(options);
-        loopInterval = setInterval(loop, 1000 / options.fps);
+
+        // init scene
+        state.scene.init(options);
+        console.log("scene: " + state.scene.name);
+        state.lastTransitionTime = Date.now();
+
+        // start main loop
+        state.loopInterval = setInterval(loop, 1000 / options.fps);
     });
 
     // sysex callback
@@ -75,19 +73,51 @@ function initCallbacks()
         console.log("caught interrupt signal.");
         arduino.close(function() {
             console.log("connection closed.");
-            clearInterval(loopInterval);
+            clearInterval(state.loopInterval);
             process.exit();
         });
     });
 
 }
 
-function initArrays()
+// main loop
+
+function loop()
 {
-    for (var i = 0; i < options.ledCount; i++)
+    state.time = Date.now();
+    state.frame++;
+
+    state.leds = generateFrame();
+    sendColors(state.leds);
+}
+
+function generateFrame()
+{
+    if (state.time > state.lastTransitionTime + (options.sceneLength * 1000))
     {
-        leds[i] = Color({ r: 0, g: 0, b: 0 });
+        // transition begins
+        state.lastTransitionTime = state.time;
+        state.nextScene = _.sample(_.filter(scenes.all, function(scene) { return scene.name != state.scene.name }));
+        state.nextScene.init(options);
+        console.log("transition - scene: " + state.nextScene.name);
     }
+    else if (state.time < state.lastTransitionTime + (options.transitionTime * 1000) && state.nextScene)
+    {
+        // transition underway
+        return transitions.fade(state.scene.render(state),
+                                state.nextScene.render(state),
+                                state.lastTransitionTime, options.transitionTime * 1000,
+                                state, options);
+    }
+    else if (state.nextScene)
+    {
+        // transition ends
+        state.scene = state.nextScene;
+        state.nextScene = null;
+        console.log("transition complete");
+    }
+
+    return state.scene.render(state);
 }
 
 // Send colors
@@ -97,7 +127,7 @@ function getBytes(strand)
     var ledStrand = [];
     for (var i = 0; i < strand.length; i++)
     {
-        var colorRgb = leds[i].rgb();
+        var colorRgb = strand[i].rgb();
         ledStrand.push(colorRgb.r, colorRgb.g, colorRgb.b);
     }
     return ledStrand;
@@ -108,6 +138,6 @@ function sendColors(strand)
     var bytes = getBytes(strand);
     arduino.sysex(SYSEX_SET_COLORS, bytes, function()
     {
-        // console.log("sent frame.");
+        if (state.frame % 10 == 0) console.log(state.frame + " | " + strand[0].hslString());
     });
 }
