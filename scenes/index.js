@@ -6,6 +6,7 @@ var scenes = [
 
 scenes.forEach(function(path) {
     var scene = require('./' + path);
+    scene.name = path;
     exports[path] = scene;
 });
 

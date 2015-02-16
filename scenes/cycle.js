@@ -13,7 +13,8 @@ var changeTimeMax = 750;
 function init(options)
 {
     var initialChangeTime = Date.now();
-    var colorIndex = _.random(0, palette.length);
+    var colorIndex = _.random(palette.length - 1);
+    pixels = [];
 
     for (var i = 0; i < options.ledCount; i++)
     {
@@ -25,7 +26,7 @@ function init(options)
 
         if (i % groupSize == groupSize - 1)
         {
-            colorIndex = _.random(0, palette.length);
+            colorIndex = _.random(palette.length - 1);
         }
     }
 }

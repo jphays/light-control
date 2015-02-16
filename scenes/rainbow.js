@@ -1,20 +1,24 @@
+var _ = require('lodash');
 var Color = require('color');
 
-var sceneLeds = [];
+var pixels = [];
 
 function init(options)
 {
+    var hue = _.random(360);
+    pixels = [];
     for (var i = 0; i < options.ledCount; i++)
     {
-        sceneLeds.push(Color({ h: (i * 5) % 360, s: 100, v: 85 }));
+        pixels.push(Color({ h: hue, s: 100, v: 85 }));
+        hue = (hue + 5) % 360;
     }
 }
 
 function render(state)
 {
     var value = (Math.sin(state.time / 1000) + 1) * 30 + 30;
-    sceneLeds.forEach(function(led) { led.rotate(1); });
-    return sceneLeds;
+    pixels.forEach(function(led) { led.rotate(1); });
+    return pixels;
 }
 
 exports.init = init;
