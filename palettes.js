@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var Color = require('color');
 
 // 7-color rainbow
@@ -54,90 +55,114 @@ exports.schemeFromDegrees = function(color, degrees)
 
 exports.complementaryScheme = function(color)
 {
-    return this.schemeFromDegrees(color, [0,180]);
+    return exports.schemeFromDegrees(color, [0,180]);
 };
 
 exports.splitComplementaryScheme = function(color)
 {
-    return this.schemeFromDegrees(color, [0,150,320]);
+    return exports.schemeFromDegrees(color, [0,150,320]);
 };
 
 exports.splitComplementaryCWScheme = function(color)
 {
-    return this.schemeFromDegrees(color, [0,150,300]);
+    return exports.schemeFromDegrees(color, [0,150,300]);
 };
 
 exports.splitComplementaryCCWScheme = function(color)
 {
-    return this.schemeFromDegrees(color, [0,60,210]);
+    return exports.schemeFromDegrees(color, [0,60,210]);
 };
 
 exports.triadicScheme = function(color)
 {
-    return this.schemeFromDegrees(color, [0,120,240]);
+    return exports.schemeFromDegrees(color, [0,120,240]);
 };
 
 exports.clashScheme = function(color)
 {
-    return this.schemeFromDegrees(color, [0,90,270]);
+    return exports.schemeFromDegrees(color, [0,90,270]);
 };
 
 exports.tetradicScheme = function(color)
 {
-    return this.schemeFromDegrees(color, [0,90,180,270]);
+    return exports.schemeFromDegrees(color, [0,90,180,270]);
 };
 
 exports.fourToneCWScheme = function(color)
 {
-    return this.schemeFromDegrees(color, [0,60,180,240]);
+    return exports.schemeFromDegrees(color, [0,60,180,240]);
 };
 
 exports.fourToneCCWScheme = function(color)
 {
-    return this.schemeFromDegrees(color, [0,120,180,300]);
+    return exports.schemeFromDegrees(color, [0,120,180,300]);
 };
 
 exports.fiveToneAScheme = function(color)
 {
-    return this.schemeFromDegrees(color, [0,115,155,205,245]);
+    return exports.schemeFromDegrees(color, [0,115,155,205,245]);
 };
 
 exports.fiveToneBScheme = function(color)
 {
-    return this.schemeFromDegrees(color, [0,40,90,130,245]);
+    return exports.schemeFromDegrees(color, [0,40,90,130,245]);
 };
 
 exports.fiveToneCScheme = function(color)
 {
-    return this.schemeFromDegrees(color, [0,50,90,205,320]);
+    return exports.schemeFromDegrees(color, [0,50,90,205,320]);
 };
 
 exports.fiveToneDScheme = function(color)
 {
-    return this.schemeFromDegrees(color, [0,40,155,270,310]);
+    return exports.schemeFromDegrees(color, [0,40,155,270,310]);
 };
 
 exports.fiveToneEScheme = function(color)
 {
-    return this.schemeFromDegrees(color, [0,115,230,270,320]);
+    return exports.schemeFromDegrees(color, [0,115,230,270,320]);
 };
 
 exports.sixToneCWScheme = function(color)
 {
-    return this.schemeFromDegrees(color, [0,30,120,150,240,270]);
+    return exports.schemeFromDegrees(color, [0,30,120,150,240,270]);
 };
 
 exports.sixToneCCWScheme = function(color)
 {
-    return this.schemeFromDegrees(color, [0,90,120,210,240,330]);
+    return exports.schemeFromDegrees(color, [0,90,120,210,240,330]);
 };
 
 exports.neutralScheme = function(color)
 {
-    return this.schemeFromDegrees(color, [0,15,30,45,60,75]);
+    return exports.schemeFromDegrees(color, [0,15,30,45,60,75]);
 };
 
 exports.analogousScheme = function(color)
 {
-    return this.schemeFromDegrees(color, [0,30,60,90,120,150]);
+    return exports.schemeFromDegrees(color, [0,30,60,90,120,150]);
 };
+
+exports.randomPalette = function()
+{
+    var schemeFunction = _.sample([ exports.complementaryScheme,
+                                    exports.splitComplementaryScheme,
+                                    exports.splitComplementaryCWScheme,
+                                    exports.splitComplementaryCCWScheme,
+                                    exports.triadicScheme,
+                                    exports.clashScheme,
+                                    exports.tetradicScheme,
+                                    exports.fourToneCWScheme,
+                                    exports.fourToneCCWScheme,
+                                    exports.fiveToneAScheme,
+                                    exports.fiveToneBScheme,
+                                    exports.fiveToneCScheme,
+                                    exports.fiveToneDScheme,
+                                    exports.fiveToneEScheme,
+                                    exports.sixToneCWScheme,
+                                    exports.sixToneCCWScheme,
+                                    exports.neutralScheme,
+                                    exports.analogousScheme ]);
+
+    return schemeFunction({ h: _.random(360), s: 100, v: 80 });
+}
