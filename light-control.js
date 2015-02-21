@@ -122,10 +122,10 @@ function generateFrame()
     {
         // transition underway
 
+        var position = (state.time - state.lastTransitionTime) / (options.transitionTime * 1000);
         return state.transition(state.scene.render(state),
                                 state.nextScene.render(state),
-                                state.lastTransitionTime, options.transitionTime * 1000,
-                                state, { color: "#BBB" });
+                                position, options);
     }
     else if (state.nextScene)
     {
