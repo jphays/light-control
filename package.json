@@ -1,7 +1,7 @@
 {
     "name": "light-control",
-    "version": "0.0.3",
-    "description": "Control module for TCL on Arduino via Firmata.",
+    "version": "0.0.4",
+    "description": "Control module for TCL LEDs on Arduino via Firmata.",
     "author": "Josh Hays <jphays@gmail.com>",
     "scripts": {
 	"start": "node light-control.js"

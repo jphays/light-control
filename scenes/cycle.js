@@ -3,18 +3,19 @@ var Color = require('color');
 var palettes = require('../palettes');
 
 var palette = palettes.rainbowBW;
-
 var pixels = [];
 
-var groupSize = 5;
+var groupSize = 7;
 var changeTimeMin = 500;
 var changeTimeMax = 750;
 
 function init(options)
 {
+    palette = options.palette || palettes.rainbowBW;
+    pixels = [];
+
     var initialChangeTime = Date.now();
     var colorIndex = _.random(palette.length - 1);
-    pixels = [];
 
     for (var i = 0; i < options.ledCount; i++)
     {

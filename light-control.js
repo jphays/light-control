@@ -4,6 +4,7 @@ var Color = require('color');
 
 var scenes = require('./scenes');
 var transitions = require('./transitions');
+var palettes = require('./palettes');
 
 var SYSEX_SET_COLORS = 0x01;
 
@@ -11,8 +12,10 @@ var options =
 {
     ledCount: 50,
     fps: 30,
-    sceneLength: 12,  // seconds
-    transitionTime: 3 // seconds
+    sceneLength: 15,   // seconds
+    transitionTime: 3, // seconds
+    palette: palettes.randomPalette(),
+    randomizePalette: true
 };
 
 var state =
@@ -35,6 +38,13 @@ init();
 
 function init()
 {
+    console.log("  _ _      _   _                _           _ ");
+    console.log(" | (_)__ _| |_| |_   __ ___ _ _| |_ _ _ ___| |");
+    console.log(" | | / _` | ' \\  _|_/ _/ _ \\ ' \\  _| '_/ _ \\ |");
+    console.log(" |_|_\\__, |_||_\\__(_)__\\___/_||_\\__|_| \\___/_|");
+    console.log("     |___/                                    ");
+    console.log("_______________________________________________")
+    console.log("");
     console.log("leds: " + options.ledCount + " | " + options.fps + " fps");
 
     initCallbacks();
@@ -101,8 +111,12 @@ function generateFrame()
         state.lastTransitionTime = state.time;
         state.transition = _.sample(transitions.all);
         state.nextScene = _.sample(_.filter(scenes.all, function(scene) { return scene.name != state.scene.name }));
+
+        if (options.randomizePalette) options.palette = palettes.randomPalette();
+
         state.nextScene.init(options);
-        console.log("transition: " + state.scene.name + " -> " + state.nextScene.name);
+
+        console.log("transition(" + state.transition.name + "): " + state.scene.name + " -> " + state.nextScene.name);
     }
     else if (state.time < state.lastTransitionTime + (options.transitionTime * 1000) && state.nextScene)
     {
@@ -111,7 +125,7 @@ function generateFrame()
         return state.transition(state.scene.render(state),
                                 state.nextScene.render(state),
                                 state.lastTransitionTime, options.transitionTime * 1000,
-                                state, { color: "white" });
+                                state, { color: "#BBB" });
     }
     else if (state.nextScene)
     {
