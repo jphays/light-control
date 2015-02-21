@@ -10,14 +10,14 @@ var changeInterval = 1200;
 function init(options)
 {
     pixels = [];
-    palette = palettes.triadicScheme({ h: _.random(360), s: 100, v: 80 });
+    palette = options.palette || palettes.triadicScheme({ h: _.random(360), s: 100, v: 80 });
 
     for (var i = 0; i < options.ledCount; i++)
     {
         pixels.push({
             colorIndex: palette.length - 1,
             color: Color("black"),
-            changeTime: 5 * i,
+            changeTime: i * i * Math.sin(i) * 0.1,
             lastChangeTime: 0
         });
     }
