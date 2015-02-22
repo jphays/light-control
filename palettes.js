@@ -2,7 +2,7 @@ var _ = require('lodash');
 var Color = require('color');
 
 // 7-color rainbow
-exports.rainbow = [
+var rainbow = [
     Color({ h: 0,   s: 100, v: 85 }), // red
     Color({ h: 12,  s: 100, v: 85 }), // orange
     Color({ h: 45,  s: 100, v: 85 }), // yellow
@@ -13,8 +13,8 @@ exports.rainbow = [
 ];
 
 // rainbow with black and white
-exports.rainbowBW = [
-    Color({ h: 0,   s: 0,   v: 0}), // black
+var rainbowBW = [
+    Color({ h: 0,   s: 0,   v: 0  }), // black
     Color({ h: 0,   s: 100, v: 85 }), // red
     Color({ h: 12,  s: 100, v: 85 }), // orange
     Color({ h: 45,  s: 100, v: 85 }), // yellow
@@ -26,7 +26,7 @@ exports.rainbowBW = [
 ];
 
 // original rainbow palette
-exports.oldRainbow = [
+var oldRainbow = [
     Color("#000000"), // black
     Color("#b00000"), // red
     Color("#a02000"), // orange
@@ -41,7 +41,7 @@ exports.oldRainbow = [
 // color scheme generation functions
 // from https://github.com/brehaut/color-js
 
-exports.schemeFromDegrees = function(color, degrees)
+function schemeFromDegrees(color, degrees)
 {
     var scheme = [];
     for (var i = 0; i < degrees.length; i++)
@@ -51,118 +51,152 @@ exports.schemeFromDegrees = function(color, degrees)
         scheme.push(c);
     }
     return scheme;
-};
-
-exports.complementaryScheme = function(color)
-{
-    return exports.schemeFromDegrees(color, [0,180]);
-};
-
-exports.splitComplementaryScheme = function(color)
-{
-    return exports.schemeFromDegrees(color, [0,150,320]);
-};
-
-exports.splitComplementaryCWScheme = function(color)
-{
-    return exports.schemeFromDegrees(color, [0,150,300]);
-};
-
-exports.splitComplementaryCCWScheme = function(color)
-{
-    return exports.schemeFromDegrees(color, [0,60,210]);
-};
-
-exports.triadicScheme = function(color)
-{
-    return exports.schemeFromDegrees(color, [0,120,240]);
-};
-
-exports.clashScheme = function(color)
-{
-    return exports.schemeFromDegrees(color, [0,90,270]);
-};
-
-exports.tetradicScheme = function(color)
-{
-    return exports.schemeFromDegrees(color, [0,90,180,270]);
-};
-
-exports.fourToneCWScheme = function(color)
-{
-    return exports.schemeFromDegrees(color, [0,60,180,240]);
-};
-
-exports.fourToneCCWScheme = function(color)
-{
-    return exports.schemeFromDegrees(color, [0,120,180,300]);
-};
-
-exports.fiveToneAScheme = function(color)
-{
-    return exports.schemeFromDegrees(color, [0,115,155,205,245]);
-};
-
-exports.fiveToneBScheme = function(color)
-{
-    return exports.schemeFromDegrees(color, [0,40,90,130,245]);
-};
-
-exports.fiveToneCScheme = function(color)
-{
-    return exports.schemeFromDegrees(color, [0,50,90,205,320]);
-};
-
-exports.fiveToneDScheme = function(color)
-{
-    return exports.schemeFromDegrees(color, [0,40,155,270,310]);
-};
-
-exports.fiveToneEScheme = function(color)
-{
-    return exports.schemeFromDegrees(color, [0,115,230,270,320]);
-};
-
-exports.sixToneCWScheme = function(color)
-{
-    return exports.schemeFromDegrees(color, [0,30,120,150,240,270]);
-};
-
-exports.sixToneCCWScheme = function(color)
-{
-    return exports.schemeFromDegrees(color, [0,90,120,210,240,330]);
-};
-
-exports.neutralScheme = function(color)
-{
-    return exports.schemeFromDegrees(color, [0,15,30,45,60,75]);
-};
-
-exports.analogousScheme = function(color)
-{
-    return exports.schemeFromDegrees(color, [0,30,60,90,120,150]);
-};
-
-exports.randomPalette = function()
-{
-    var schemeFunction = _.sample([ exports.complementaryScheme,
-                                    exports.splitComplementaryScheme,
-                                    exports.splitComplementaryCWScheme,
-                                    exports.splitComplementaryCCWScheme,
-                                    exports.triadicScheme,
-                                    exports.clashScheme,
-                                    exports.tetradicScheme,
-                                    exports.fourToneCWScheme,
-                                    exports.fourToneCCWScheme,
-                                    exports.fiveToneAScheme,
-                                    exports.fiveToneBScheme,
-                                    exports.fiveToneCScheme,
-                                    exports.fiveToneDScheme,
-                                    exports.fiveToneEScheme,
-                                    exports.sixToneCWScheme,
-                                    exports.sixToneCCWScheme,
-                                    exports.neutralScheme,
-                                    exports.analogousScheme ]);
-
-    return schemeFunction({ h: _.random(360), s: 100, v: 80 });
 }
+
+function complementaryScheme(color)
+{
+    return schemeFromDegrees(color, [0,180]);
+}
+
+function splitComplementaryScheme(color)
+{
+    return schemeFromDegrees(color, [0,150,320]);
+}
+
+function splitComplementaryCWScheme(color)
+{
+    return schemeFromDegrees(color, [0,150,300]);
+}
+
+function splitComplementaryCCWScheme(color)
+{
+    return schemeFromDegrees(color, [0,60,210]);
+}
+
+function triadicScheme(color)
+{
+    return schemeFromDegrees(color, [0,120,240]);
+}
+
+function clashScheme(color)
+{
+    return schemeFromDegrees(color, [0,90,270]);
+}
+
+function tetradicScheme(color)
+{
+    return schemeFromDegrees(color, [0,90,180,270]);
+}
+
+function fourToneCWScheme(color)
+{
+    return schemeFromDegrees(color, [0,60,180,240]);
+}
+
+function fourToneCCWScheme(color)
+{
+    return schemeFromDegrees(color, [0,120,180,300]);
+}
+
+function fiveToneAScheme(color)
+{
+    return schemeFromDegrees(color, [0,115,155,205,245]);
+}
+
+function fiveToneBScheme(color)
+{
+    return schemeFromDegrees(color, [0,40,90,130,245]);
+}
+
+function fiveToneCScheme(color)
+{
+    return schemeFromDegrees(color, [0,50,90,205,320]);
+}
+
+function fiveToneDScheme(color)
+{
+    return schemeFromDegrees(color, [0,40,155,270,310]);
+}
+
+function fiveToneEScheme(color)
+{
+    return schemeFromDegrees(color, [0,115,230,270,320]);
+}
+
+function sixToneCWScheme(color)
+{
+    return schemeFromDegrees(color, [0,30,120,150,240,270]);
+}
+
+function sixToneCCWScheme(color)
+{
+    return schemeFromDegrees(color, [0,90,120,210,240,330]);
+}
+
+function neutralScheme(color)
+{
+    return schemeFromDegrees(color, [0,15,30,45,60,75]);
+}
+
+function analogousScheme(color)
+{
+    return schemeFromDegrees(color, [0,30,60,90,120,150]);
+}
+
+var allGenerators = [ complementaryScheme,
+                      splitComplementaryScheme,
+                      splitComplementaryCWScheme,
+                      splitComplementaryCCWScheme,
+                      triadicScheme,
+                      clashScheme,
+                      tetradicScheme,
+                      fourToneCWScheme,
+                      fourToneCCWScheme,
+                      fiveToneAScheme,
+                      fiveToneBScheme,
+                      fiveToneCScheme,
+                      fiveToneDScheme,
+                      fiveToneEScheme,
+                      sixToneCWScheme,
+                      sixToneCCWScheme,
+                      neutralScheme,
+                      analogousScheme ];
+
+function randomPalette()
+{
+    var scheme = _.sample(allGenerators);
+    var hue = _.random(360);
+
+    console.log("generated palette: " + scheme.name + " / " + hue + "");
+
+    return scheme({ h: _.random(360), s: 100, v: 80 });
+}
+
+module.exports = exports =
+{
+    rainbow: rainbow,
+    rainbowBW: rainbowBW,
+    oldRainbow: oldRainbow,
+
+    schemeFromDegrees: schemeFromDegrees,
+    complementaryScheme: complementaryScheme,
+    splitComplementaryScheme: splitComplementaryScheme,
+    splitComplementaryCWScheme: splitComplementaryCWScheme,
+    splitComplementaryCCWScheme: splitComplementaryCCWScheme,
+    triadicScheme: triadicScheme,
+    clashScheme: clashScheme,
+    tetradicScheme: tetradicScheme,
+    fourToneCWScheme: fourToneCWScheme,
+    fourToneCCWScheme: fourToneCCWScheme,
+    fiveToneAScheme: fiveToneAScheme,
+    fiveToneBScheme: fiveToneBScheme,
+    fiveToneCScheme: fiveToneCScheme,
+    fiveToneDScheme: fiveToneDScheme,
+    fiveToneEScheme: fiveToneEScheme,
+    sixToneCWScheme: sixToneCWScheme,
+    sixToneCCWScheme: sixToneCCWScheme,
+    neutralScheme: neutralScheme,
+    analogousScheme: analogousScheme,
+
+    randomPalette: randomPalette
+};
