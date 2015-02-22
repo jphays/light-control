@@ -11,10 +11,11 @@ var SYSEX_SET_COLORS = 0x01;
 var options =
 {
     ledCount: 50,
-    fps: 30,
+    fps: 48,
+    debug: false,
     sceneLength: 15,   // seconds
     transitionTime: 3, // seconds
-    palette: palettes.randomPalette(),
+    palette: null,
     randomizePalette: true
 };
 
@@ -34,7 +35,7 @@ var arduino = new ArduinoFirmata();
 
 init();
 
-// Initialization
+// initialization
 
 function init()
 {
@@ -62,8 +63,8 @@ function initCallbacks()
         console.log("connected: " + arduino.boardVersion + " (" + arduino.serialport_name + ")");
 
         // init scene
-        state.scene.init(options);
         console.log("scene: " + state.scene.name);
+        state.scene.init(options);
         state.lastTransitionTime = Date.now();
 
         // start main loop
@@ -81,7 +82,7 @@ function initCallbacks()
     // handle ctrl+c gracefully
     process.on('SIGINT', function()
     {
-        console.log("caught interrupt signal.");
+        console.log("interrupt acknowledged.");
         arduino.close(function() {
             console.log("connection closed.");
             clearInterval(state.loopInterval);
@@ -112,11 +113,10 @@ function generateFrame()
         state.transition = _.sample(transitions.all);
         state.nextScene = _.sample(_.filter(scenes.all, function(scene) { return scene.name != state.scene.name }));
 
+        console.log("transition (" + state.transition.name + "): " + state.scene.name + " -> " + state.nextScene.name);
+
         if (options.randomizePalette) options.palette = palettes.randomPalette();
-
         state.nextScene.init(options);
-
-        console.log("transition(" + state.transition.name + "): " + state.scene.name + " -> " + state.nextScene.name);
     }
     else if (state.time < state.lastTransitionTime + (options.transitionTime * 1000) && state.nextScene)
     {
@@ -133,23 +133,44 @@ function generateFrame()
 
         state.scene = state.nextScene;
         state.nextScene = null;
+
         console.log("transition complete: " + state.scene.name);
     }
 
     return state.scene.render(state);
 }
 
-// Send colors
+// debug
+
+function debugLed() {
+    return (
+        (state.frame % 10 === 0) ?
+            new Color("white") :
+        (state.frame % 5 === 0) ?
+            new Color("blue") :
+        // (state.frame % 2 === 0) ?
+        //     new Color("red") :
+            new Color("black"));
+}
+
+// send colors
 
 function getBytes(strand)
 {
-    var ledStrand = [];
+    var bytes = [];
     for (var i = 0; i < strand.length; i++)
     {
         var colorRgb = strand[i].rgb();
-        ledStrand.push(colorRgb.r, colorRgb.g, colorRgb.b);
+        bytes.push(colorRgb.r, colorRgb.g, colorRgb.b);
     }
-    return ledStrand;
+
+    if (options.debug)
+    {
+        var d = debugLed().rgb();
+        bytes.splice(-3, 3, d.r, d.g, d.b);
+    }
+
+    return bytes;
 }
 
 function sendColors(strand)
@@ -157,6 +178,9 @@ function sendColors(strand)
     var bytes = getBytes(strand);
     arduino.sysex(SYSEX_SET_COLORS, bytes, function()
     {
-        if (state.frame % 10 == 0) console.log(state.frame + " | " + strand[0].hslString());
+        if (options.debug && state.frame % 10 == 0)
+        {
+            console.log(state.frame + " | " + strand[0].hslString());
+        }
     });
 }

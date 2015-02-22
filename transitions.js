@@ -15,7 +15,7 @@ function crossfade(from, to, position, options)
 
 function fadeout(from, to, position, options)
 {
-    _.defaults(options, { color: "#CCC" });
+    _.defaults(options, { color: "#EEE" });
 
     var output = [];
 
