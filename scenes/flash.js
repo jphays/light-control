@@ -6,18 +6,22 @@ var palettes = require('../palettes');
 var palette;
 var pixels = [];
 var changeInterval = 1200;
+var firstRun = true;
 
 function init(options)
 {
     pixels = [];
-    palette = options.palette || palettes.triadicScheme({ h: _.random(360), s: 100, v: 80 });
+    palette = options.palette || palettes.randomPalette();
+    firstRun = true;
+
+    var initFunc = _.sample(initFuncs);
 
     for (var i = 0; i < options.ledCount; i++)
     {
         pixels.push({
             colorIndex: palette.length - 1,
             color: Color("black"),
-            changeTime: i * i * Math.sin(i) * 0.1,
+            changeTime: initFunc(i),
             lastChangeTime: 0
         });
     }
@@ -26,13 +30,13 @@ function init(options)
 function render(state)
 {
 
-    // first run
-    if (pixels[0].changeTime == 0)
+    if (firstRun)
     {
         pixels.forEach(function(pixel, i)
         {
             pixel.changeTime += state.time;
         });
+        firstRun = false;
     }
 
     pixels.forEach(function(pixel, i)
@@ -52,6 +56,17 @@ function render(state)
     return pixels.map(function(pixel) { return pixel.color; });
 
 }
+
+var initFuncs = [
+    function(i) { return i; },
+    function(i) { return 5 * i; },
+    function(i) { return i * i * 0.1; },
+    function(i) { return i * i * i * 0.01; },
+    function(i) { return i * i * Math.sin(i) * 0.1; },
+    function(i) { return _.random(200); },
+    function(i) { return _.random(1000); },
+    function(i) { return i * _.random(100); }
+];
 
 exports.init = init;
 exports.render = render;
