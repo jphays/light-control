@@ -74,9 +74,12 @@ function initCallbacks()
     // sysex callback
     arduino.on('sysex', function(e)
     {
-        console.log("sysex received.");
-        console.log("command : " + e.command);
-        console.log("data    : " + JSON.stringify(e.data));
+        if (options.debug)
+        {
+            console.log("sysex received.");
+            console.log("command : " + e.command);
+            console.log("data    : " + JSON.stringify(e.data));
+        }
     });
 
     // handle ctrl+c gracefully
