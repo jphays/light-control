@@ -5,6 +5,7 @@ var Color = require('color');
 var scenes = require('./scenes');
 var transitions = require('./transitions');
 var palettes = require('./palettes');
+var effects = require('./effects');
 
 var SYSEX_SET_COLORS = 0x01;
 
@@ -164,6 +165,7 @@ function getBytes(strand)
     for (var i = 0; i < strand.length; i++)
     {
         var colorRgb = strand[i].rgb();
+        //var colorRgb = effects.gamma(strand[i], { r: 2.2, g: 2.2, b: 2.2 }).rgb();
         bytes.push(colorRgb.r, colorRgb.g, colorRgb.b);
     }
 

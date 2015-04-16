@@ -52,3 +52,14 @@ exports.envelope = function(startTime, state, options)
 
 }
 
+exports.gamma = function(color, gamma)
+{
+    if (!gamma) gamma = { r: 2.2, g: 2.2, b: 2.2 };
+
+    color = Color(color);
+    color.red(Math.pow(color.red() / 256.0, gamma.r) * 255.0);
+    color.green(Math.pow(color.green() / 256.0, gamma.g) * 255.0);
+    color.blue(Math.pow(color.blue() / 256.0, gamma.b) * 255.0);
+
+    return color;
+}
