@@ -29,7 +29,8 @@ var state =
     nextScene: null,
     lastTransitionTime: 0,
     transition: null,
-    loopInterval: null
+    loopInterval: null,
+    fps: 0
 };
 
 var arduino = new ArduinoFirmata();
@@ -100,6 +101,8 @@ function initCallbacks()
 
 function loop()
 {
+    var fps = 1 / (Date.now() / 1000 - state.time / 1000);
+    state.fps = state.fps * 0.9 + fps * 0.1;
     state.time = Date.now();
     state.frame++;
 
@@ -185,7 +188,7 @@ function sendColors(strand)
     {
         if (options.debug && state.frame % 10 == 0)
         {
-            console.log(state.frame + " | " + strand[0].hslString());
+            console.log(state.frame + " | " + Math.round(state.fps * 100) / 100 + " | " + strand[0].hslString());
         }
     });
 }
